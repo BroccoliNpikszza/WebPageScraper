@@ -8,8 +8,8 @@ const app = express();
  * param2: callback that waits for pyhthon process to complete 
  * callback: returns stdout from python as a string
 */
-function getPythonData(url, callback){
-  const pythonProcess = spawn("python3",["src/scraper.py", url]);
+function getPythonData(url, script, callback){
+  const pythonProcess = spawn("python3",[script, url]);
   let dataFromPy = "";
   //in case of read
   pythonProcess.stdout.on("data",(data)=>{
@@ -30,8 +30,15 @@ function getPythonData(url, callback){
 }
 
 app.get("/",(req,res)=>{
-  const url = "https://news.ycombinator.com/news";
-  getPythonData(url,(data)=>{
+  const url = "https://www.researchgate.net/topic/Engineering";
+  getPythonData(url,"src/scraper.py",(data)=>{
+    res.send(data);
+  });
+})
+
+app.get("/sel",(req,res)=>{
+  const url = "https://www.researchgate.net/topic/Engineering";
+  getPythonData(url,"src/seleniumScraper.py",(data)=>{
     res.send(data);
   });
 })
