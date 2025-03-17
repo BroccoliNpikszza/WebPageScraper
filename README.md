@@ -34,6 +34,16 @@ We’ll use node.js to run our server. Our app needs ability to fetch html and p
     //if path is given but does not exist, emits an ENOENT erros and exits
     ```
     
+- **build docker image**
 
+```bash
+docker build -t userid/appname:1.0
+```
+
+- **docker ports** need to forwarded **to local machine port** to run
+
+```bash
+docker run -p 5000:8080 imageid
+```
 ---
 
