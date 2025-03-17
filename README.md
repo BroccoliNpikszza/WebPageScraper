@@ -6,8 +6,9 @@ COMP 3033 Final Project
 ```bash
 git clone https://github.com/BroccoliNpikszza/WebPageScraper.git
 cd WebPageScraper/server
-pip install beautifulsoup4
 npm install
+cd src/
+pip install -U selenium beautifulsoup4 webdriver_manager
 ```
 
 ## Setting Up server
