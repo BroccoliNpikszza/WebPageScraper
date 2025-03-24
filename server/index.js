@@ -31,7 +31,7 @@ function getPythonData(url, script, callback){
 
 app.get("/",(req,res)=>{
   const url = "https://www.researchgate.net/topic/Engineering";
-  getPythonData(url,"src/scraper.py",(data)=>{
+  getPythonData(url,"src/seleniumScraper.py",(data)=>{
     res.send(data);
   });
 })
