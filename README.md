@@ -47,3 +47,16 @@ docker run -p 5000:8080 imageid
 ```
 ---
 
+
+## Running Client & server
+[Do not run through docker at the moment.]
+### client
+```
+npm run dev
+
+```
+### server
+```
+node index.js
+```
+
