@@ -1,63 +1,64 @@
 const express = require("express");
-const {spawn} = require("child_process");
+const { spawn } = require("child_process");
 const cors = require("cors");
 const app = express();
+
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: true,
 };
 
 app.use(express.json());
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 
-/*
- * getPythonData gets url, and returns a callback, which returns the data once the process is complete
- * param1: a srting of url to scrape
- * param2: callback that waits for pyhthon process to complete 
- * callback: returns stdout from python as a string
-*/
-function getPythonData(url, script,tags, callback){
-  const pythonProcess = spawn("python3",[script, url, tags]);
+function getPythonData(url, script, tags, classes, id, callback) {
+  const args = [script, "--url", url];
+
+  if (tags) {
+    args.push("--tag", tags);
+  }
+  if (classes) {
+    args.push("--classes", classes);
+  }
+  if (id) {
+    args.push("--id", id);
+  }
+
+  const pythonProcess = spawn("python3", args);
+
   let dataFromPy = "";
-  //in case of read
-  pythonProcess.stdout.on("data",(data)=>{
+
+  pythonProcess.stdout.on("data", (data) => {
     dataFromPy += data.toString();
   });
-  //in case of err
-  pythonProcess.stderr.on("data",(data)=>{
+
+  pythonProcess.stderr.on("data", (data) => {
     console.error(`Python error: ${data}`);
   });
 
-  //after exit
-  pythonProcess.on("close",(exitCode)=>{
-    if (exitCode!==0){
-      console.log("Python script failed :{")
+  pythonProcess.on("close", (exitCode) => {
+    if (exitCode !== 0) {
+      console.log("Python script failed :{");
     }
     callback(dataFromPy);
-  })
+  });
 }
 
-app.get("/",(req,res)=>{
-  const url = "https://www.researchgate.net/topic/Engineering";
-  getPythonData(url,"src/seleniumScraper.py",(data)=>{
-    res.send(data);
-  });
-})
+app.post("/", (req, res) => {
+  const { url, tags, classes, id } = req.body;
+  console.log("Incoming request body:", req.body);
 
-app.post("/sel",(req,res)=>{
-  const {url, tags} = req.body;
-  console.log(tags)
-  getPythonData(url,"src/seleniumScraper.py",tags,(data)=>{
-    const website = {
-      url: url,
-      data: data,
+  getPythonData(url, "src/seleniumScraper.py", tags, classes, id, (data) => {
+    try {
+      const parsedData = JSON.parse(data); // from Python script
+      console.log(parsedData)
+      res.json(parsedData);
+    } catch (e) {
+      console.error("Error parsing Python output as JSON:", e);
+      res.status(500).send("Failed to parse scraped data");
     }
-
-    
-    res.send(website);
   });
-})
+});
 
-
-app.listen(3000,()=>{
+app.listen(3000, () => {
   console.log("Server running on port 3000...");
-})
+});

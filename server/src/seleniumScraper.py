@@ -1,5 +1,6 @@
 import time
 import json
+import argparse
 import sys
 sys.stdout.reconfigure(encoding='utf-8') #ignore if not windows (added this line cause win powershell ass and doesn't use utf-8 encoding by default)
 from bs4 import BeautifulSoup
@@ -31,39 +32,47 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), opti
 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": userAgent})
 
-url = sys.argv[1]
-className = sys.argv[2]
+url = ""
+tagName = ""
+className = ""
+idName = ""
+
+def parseArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--url", required=True)
+    parser.add_argument("--tag", default="")
+    parser.add_argument("--classes", default="")
+    parser.add_argument("--id", default="")
+
+    args = parser.parse_args()
+
+    return args
+
+args = parseArgs()
+
+url = args.url
+tagName = args.tag
+className = args.classes
+idName = args.id
+
+
 
 driver.get(url)
+time.sleep(10)
 
 
-soup = BeautifulSoup(driver.page_source, "html.parser")
+soup = BeautifulSoup(driver.page_source)
 
-extracted_data = {}
+website = {
+    "url": url,
+    "body": soup.get_text(separator="\n", strip=True),
+    "tag_content": str(soup.find_all(tagName)) if tagName else "",
+    "class_content": str(soup.find_all(class_=className)) if className else "",
+    "id_content": str(soup.find(id=idName)) if idName else ""
+}
 
-# Extract Textual Content
-extracted_data["title"] = soup.title.string if soup.title else None
-extracted_data["headings"] = [h.text.strip() for h in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
-extracted_data["paragraphs"] = [p.text.strip() for p in soup.find_all('p')]
-extracted_data["lists"] = [[li.text.strip() for li in ul.find_all('li')] for ul in soup.find_all(['ul', 'ol'])]
-extracted_data["tables"] = [[ [td.text.strip() for td in tr.find_all('td')] for tr in table.find_all('tr')] for table in soup.find_all('table')]
-extracted_data["links"] = [{"text": a.text.strip(), "href": a.get('href')} for a in soup.find_all('a') if a.get('href')]
-extracted_data["meta_description"] = soup.find('meta', attrs={'name': 'description'})['content'] if soup.find('meta', attrs={'name': 'description'}) else None
-extracted_data["meta_keywords"] = soup.find('meta', attrs={'name': 'keywords'})['content'] if soup.find('meta', attrs={'name': 'keywords'}) else None
+print (json.dumps(website))
 
-print(extracted_data["headings"])
-structured_data_scripts = soup.find_all('script', type='application/ld+json')
-structured_data = []
-for script in structured_data_scripts:
-    try:
-        structured_data.append(json.loads(script.string))
-    except (json.JSONDecodeError, TypeError):
-        print("Error parsing JSON-LD data.")
-extracted_data["structured_data"] = structured_data
-
-print (structured_data)
-
-time.sleep(20)
 driver.quit()
 
 sys.stdout.flush()
