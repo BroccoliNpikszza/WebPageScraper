@@ -33,7 +33,7 @@ We’ll use node.js to run our server. Our app needs ability to fetch html and p
     //by default runs on cwd
     //if path is given but does not exist, emits an ENOENT erros and exits
     ```
-    
+ 
 - **build docker image**
 
 ```bash
@@ -48,15 +48,22 @@ docker run -p 5000:8080 imageid
 ---
 
 
-## Running Client & server
-[Do not run through docker at the moment.]
+## Local installation without docker
 ### client
 ```
-npm run dev
+npm install
+npm run dev 
 
 ```
 ### server
 ```
-node index.js
+npm install
+cd src/ && pip install selenium beautifulsoup4 webdriver_manager lxml argparse fake_useragent
+cd.. && node index.js
 ```
-
+## Running with docker
+### server
+```
+docker build -t userid/demoapp:1.0
+docker run -p 3000:3000 imageid
+```
