@@ -61,14 +61,33 @@ driver.get(url)
 time.sleep(10)
 
 
-soup = BeautifulSoup(driver.page_source)
+soup = BeautifulSoup(driver.page_source,"lxml")
+
+tag_content = []
+if tagName:
+    tags = soup.find_all(tagName)
+    for tag in tags:
+        tag_content.append(str(tag))
+
+class_content = []
+if className:
+    classes = soup.find_all(class_=className)
+    for element in classes:
+        class_content.append(str(element))
+
+id_content = []
+if idName:
+    ids = soup.find_all(id=idName)
+    for element in ids:
+        id_content.append(str(element))
+
 
 website = {
     "url": url,
     "body": soup.get_text(separator="\n", strip=True),
-    "tag_content": str(soup.find_all(tagName)) if tagName else "",
-    "class_content": str(soup.find_all(class_=className)) if className else "",
-    "id_content": str(soup.find(id=idName)) if idName else ""
+    "tag_content": tag_content,
+    "class_content": class_content,
+    "id_content": id_content
 }
 
 print (json.dumps(website))

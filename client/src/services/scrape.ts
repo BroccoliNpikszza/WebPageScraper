@@ -7,7 +7,6 @@ interface Website {
     type: "scraping" | "custom_script";
 }
 
-const SCRAPING_SERVER = "http://localhost:3000/sel";
 const CUSTOM_SCRIPT_SERVER = "http://localhost:3000/execute";
 
 export async function scrape(website: Website) {
@@ -16,7 +15,7 @@ export async function scrape(website: Website) {
         : { url: website.url, script: website.script }; 
 
     return axios
-        .post(website.type === "scraping" ? SCRAPING_SERVER : CUSTOM_SCRIPT_SERVER, requestData, {
+        .post(CUSTOM_SCRIPT_SERVER, requestData, {
             headers: {
                 "Content-Type": "application/json",
             },

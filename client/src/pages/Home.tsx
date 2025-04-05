@@ -17,6 +17,7 @@ function Home() {
     const classRef = useRef<HTMLInputElement>(null);
     const idRef = useRef<HTMLInputElement>(null);
     const [scrapedData, setScrapedData] = useState<ScrapedDataType | null>(null);
+    const [displayData, setDisplayData] = useState<string | undefined>(scrapedData?.body);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
@@ -81,11 +82,20 @@ function Home() {
                     </button>
                 </div>
             </form >
+            {scrapedData &&
+            <div>
+            <button onClick={()=>{setDisplayData(scrapedData?.body)}} className="btn btn-primary">Body</button>
+            <button onClick={()=>{setDisplayData(scrapedData?.tag_content)}} className="btn btn-secondary">Tag</button>
+            <button onClick={()=>{setDisplayData(scrapedData?.class_content)}} className="btn btn-primary">Class</button>
+            <button onClick={()=>{setDisplayData(scrapedData?.id_content)}} className="btn btn-secondary">Id</button>
+
             <div style={{maxHeight:'300px', overflow:'auto', border:'1px solid'}}>
             {scrapedData && (
-                <pre>{scrapedData.body}</pre>
+                <pre>{displayData}</pre>
             )}
             </div>
+            </div>
+}
 
         </>
     )
